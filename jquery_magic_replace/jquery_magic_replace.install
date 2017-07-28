@@ -1,0 +1,7 @@
+<?php
+/**
+ * Implements hook_enable().
+ */
+function jquery_magic_replace_enable() {
+	
+}

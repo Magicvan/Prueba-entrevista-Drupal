@@ -1,0 +1,118 @@
+<?php
+/**
+ * @file
+ * jQuery Magic Replace, add stable version 1.10.1 in jquery update settings
+ */
+
+/**
+ * Implements hook_help().
+ */
+function jquery_magic_replace_help($path, $arg) {
+  switch ($path) {
+    case 'admin/config/development/jquery_magic_replace':
+      return '<p>' . t('Custom module to add 1.10.1 version on jQuery Update settings form.') . '</p>';
+  }
+}
+
+/**
+* Implements hook_form_alter
+*/
+function jquery_magic_replace_form_alter(&$form, &$form_state, $form_id){
+  if ($form_id == 'jquery_update_settings_form'){
+    $form['version_options']['jquery_update_jquery_version']['#options']['magicVersion'] = '1.10.1';
+    $form['version_options']['jquery_update_jquery_admin_version']['#options']['magicVersion'] = '1.10.1';
+  }
+}
+
+/**
+ * Update jQuery to the CDN or local path.
+ *
+ * @param array $javascript
+ *   The library definition array as seen in hook_library_alter().
+ * @param string $cdn
+ *   The name of the CDN option to use. Possible options are:
+ *   - none
+ *   - google
+ *   - microsoft
+ * @param string $path
+ *   The path to the module where replacements can be found.
+ * @param string $min
+ *   The '.min' to include in the file name if we are requesting a minified
+ *   version.
+ * @param string $version
+ *   The version of jQuery to use.
+ */
+function jquery_magic_replace_jquery_replace(&$javascript, $cdn, $path, $min, $version) {
+  $trueversion = NULL;
+  if ($version == 'magicVersion'){
+    $trueversion = '1.10.1';
+    $javascript['jquery']['version'] = $trueversion;
+    // Check for CDN support.
+    if ($cdn == 'none'){
+      $javascript['jquery']['js'][] = array(
+        'data' => 'window.jQuery || document.write("<script src=\'' . base_path() . $path . '/replace/jquery/' . $trueversion . '/jquery' . $min . '.js\'>\x3C/script>")',
+        'type' => 'inline',
+        'group' => JS_LIBRARY,
+        'weight' => -99.999999999,
+      );
+    }
+  }
+  //TODO: Delete version of jQueryUpdate 
+}
+
+/**
+ * Implements hook_library().
+ */
+function jquery_magic_replace_library(&$javascript, $module) {
+  $libraries['jquery_magic_replace.ajax.fix'] = array(
+    'title' => 'jQuery magic replace Fix',
+    'js' => array(
+      drupal_get_path('module', 'jquery_magic_replace') . '/js/jquery_magic_replace.js' => array(
+        'group' => JS_LIBRARY,
+        'weight' => 3,
+      ),
+    ),
+    'version' => '0.0.1',
+  );
+  return $libraries;
+}
+
+/**
+ * Implements hook_library_alter().
+ */
+function jquery_magic_replace_library_alter(&$javascript, $module) {
+  $path = drupal_get_path('module', 'jquery_magic_replace');
+  $version = variable_get('jquery_update_jquery_version', '1.10.2');
+  // Modified System Library.
+  if ($module === 'system') {
+    // Make sure we inject either the minified or uncompressed version as desired.
+    $min = variable_get('jquery_update_compression_type', 'min') == 'none' ? '' : '.min';
+    $cdn = variable_get('jquery_update_jquery_cdn', 'none');
+    // Replace jQuery with the alternative version.
+    $admin_version = variable_get('jquery_update_jquery_admin_version', '');
+    if (!empty($admin_version) && path_is_admin(current_path())) {
+      if (version_compare($version, $admin_version, '!=')) {
+        $version = $admin_version;
+      }
+    }
+    // If the ajax version is set then that one always win.
+    if (!empty($_POST['ajax_page_state']['jquery_version'])) {
+      $ajax_version = $_POST['ajax_page_state']['jquery_version'];
+      if (in_array($ajax_version, array('default', '1.5', '1.6', '1.7', '1.8', '1.9', '1.10', '1.10.1'))) {
+        $version = $ajax_version;
+      }
+    }
+    $javascript['drupal.ajax']['js'][] = array(
+      'data' => array('ajaxPageState' => array('jquery_version' => $version)),
+      'type' => 'setting',
+    );
+    $javascript['drupal.ajax']['dependencies'][] = array('jquery_magic_replace', 'jquery_magic_replace.ajax.fix');
+
+    if ('default' == $version) {
+      return;
+    }
+    jquery_magic_replace_jquery_replace($javascript, $cdn, $path, $min, $version);
+  }
+}
+
+

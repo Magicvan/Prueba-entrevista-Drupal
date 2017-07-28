@@ -1,0 +1,41 @@
+<?php
+/**
+ * @file
+ * Bean for showing top content
+ */
+
+/**
+ * Implements hook_help().
+ */
+function bean_top_content_help($path, $arg) {
+  switch ($path) {
+    case 'admin/config/development/bean_top_content':
+      return '<p>' . t('Custom module to add new Bean type.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_bean_types_api_info().
+ */
+function bean_top_content_bean_types_api_info() {
+  return array('api' => 4);
+}
+
+/**
+ * Implements hook_bean_types().
+ */
+function bean_top_content_bean_types() {
+  $plugins = array();
+  $plugin_path = drupal_get_path('module', 'bean_top_content') . '/plugins';
+  $plugins['top_content'] = array(
+    'label' => t('Top Content'),
+    'description' => t('Settings to top content.'),
+    'handler' => array(
+      'class' => 'TopContentBean',
+      'parent' => 'bean',
+      'path' => $plugin_path,
+      'file' => 'TopContentBean.inc',
+    ),
+  );
+  return $plugins;
+}

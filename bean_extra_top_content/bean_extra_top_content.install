@@ -1,0 +1,8 @@
+<?php
+/**
+ * Implements hook_enable().
+ */
+function bean_extra_top_content_enable() {	
+	// Flush caches
+	drupal_flush_all_caches();
+}

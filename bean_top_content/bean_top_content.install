@@ -1,0 +1,67 @@
+<?php
+/**
+ * Implements hook_enable().
+ */
+function bean_top_content_enable() {
+	// Create the bean
+	$bean = bean_create(array('type' => 'top-content'));
+	$bean->label = 'Top content';
+	$bean->title = 'Top content';
+	$bean->delta = 'OglivyOneBcn';	
+	$bean->save();
+	drupal_set_message(t('Bean created'));
+	// Flush caches
+	drupal_flush_all_caches();
+	drupal_set_message(t('Flush all caches'));
+	// Enable blocks
+	$currentTheme = variable_get('theme_default', FALSE);
+	$blocks = array(
+		array(
+			'status' => 1,
+			'weight' => 2,
+			'region' => system_default_region($currentTheme),
+			'visibility' => 1,
+			'pages' => "<front>",
+			'module' => 'bean_extra_top_content',
+			'delta' => 'infoAuthor',
+			'theme' => $currentTheme,
+		),
+		array(
+			'status' => 1,
+			'weight' => 1,
+			'region' => system_default_region($currentTheme),
+			'visibility' => 1,
+			'pages' => "<front>",
+			'module' => 'bean_top_content',
+			'delta' => 'OglivyOneBcn',
+			'theme' => $currentTheme,
+		),
+		array(
+			'status' => 1,
+			'weight' => 1,
+			'region' => system_default_region($currentTheme),
+			'visibility' => 1,
+			'pages' => "<front>",
+			'module' => 'bean',
+			'delta' => 'OglivyOneBcn',
+			'theme' => $currentTheme,
+		)
+	);
+	foreach($blocks as $block){
+		db_merge('block')
+			->key(array(
+				'module'=>$block['module'],
+				'delta'=> $block['delta'],
+				'theme'=> $block['theme']
+			))
+			->fields(array(
+				'status' => $block['status'],
+				'weight' => $block['weight'],
+				'region' => $block['region'],
+				'visibility' => $block['visibility'],
+				'pages' => $block['pages'],
+			))
+			->execute();
+	}
+	drupal_set_message(t("Blocks enabled."));
+}

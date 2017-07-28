@@ -1,0 +1,14 @@
+name = Bean Top Content
+description = Shows the most viewed content according to the access time
+core = 7.x
+files[] = "plugins/TopContentBean.inc"
+dependencies[] = bean
+dependencies[] = bean_admin_ui
+dependencies[] = bean_extra_top_content
+package = Magic Modules
+
+; Information added by Drupal.org packaging script on future
+version = "7.x-1.0"
+core = "7.x"
+project = "bean_top_content"
+
