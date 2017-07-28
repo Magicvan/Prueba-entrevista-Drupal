@@ -1,5 +1,4 @@
 # Módulo Bean Top Content && Módulo Bean Extra Top Content
-Realización de una prueba para una entrevista para la resolución de las siguientes tareas:
 Objetivo de la tarea 1:
 Crear un Bean que muestre el contenido más popular durante el dia (08:00 – 22:00), y el contenido más popular durante la noche(22:00 – 08:00). Teniendo en cuenta que si visitas el Bean durante la noche, ha de mostrar los contenidos más populares durante esa franja horaria, mientras que si lo visitas durante el día se han de mostrar los más visitados durante el día.
 Exportar esta funcionalidad en un módulo para que sólo sea necesario habilitar el modulo para ver este Bean (en la homepage).
